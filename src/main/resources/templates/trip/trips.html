@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}"><title>BusBooking</title></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<div class="page-title-bar">
+    <div class="container d-flex justify-content-between align-items-center">
+        <h2><i class="bi bi-calendar-event me-2"></i>Trip Management</h2>
+        <a th:href="@{/view/trips/add}" class="btn btn-light">
+            <i class="bi bi-plus-circle me-1"></i>Add Trip
+        </a>
+    </div>
+</div>
+
+<div class="container">
+    <div th:if="${message}" class="alert alert-success flash-message" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i><span th:text="${message}"></span>
+    </div>
+    <div th:if="${error}" class="alert alert-danger flash-message" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i><span th:text="${error}"></span>
+    </div>
+
+    <div class="table-container">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Route</th>
+                        <th>Bus Type</th>
+                        <th>Departure</th>
+                        <th>Arrival</th>
+                        <th>Available Seats</th>
+                        <th>Fare</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="t : ${trips}">
+                        <td th:text="${t.tripId}"></td>
+                        <td>
+                            <span th:text="${t.fromCity}"></span>
+                            <i class="bi bi-arrow-right text-primary mx-1"></i>
+                            <span th:text="${t.toCity}"></span>
+                        </td>
+                        <td><span class="badge bg-info" th:text="${t.busType}"></span></td>
+                        <td th:text="${t.departureTime}"></td>
+                        <td th:text="${t.arrivalTime}"></td>
+                        <td>
+                            <span class="badge bg-success" th:text="${t.availableSeats}"></span>
+                        </td>
+                        <td th:text="'Rs. ' + ${t.fare}"></td>
+                        <td>
+                            <a th:href="@{/view/trips/edit/{id}(id=${t.tripId})}" class="btn btn-sm btn-outline-primary btn-action me-1">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(trips)}">
+                        <td colspan="8" class="text-center text-muted py-4">No trips found.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

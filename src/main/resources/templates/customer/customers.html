@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}"><title>BusBooking</title></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<div class="page-title-bar">
+    <div class="container d-flex justify-content-between align-items-center">
+        <h2><i class="bi bi-people-fill me-2"></i>Customer Management</h2>
+        <a th:href="@{/view/customers/add}" class="btn btn-light">
+            <i class="bi bi-plus-circle me-1"></i>Add Customer
+        </a>
+    </div>
+</div>
+
+<div class="container">
+    <div th:if="${message}" class="alert alert-success flash-message" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i><span th:text="${message}"></span>
+    </div>
+    <div th:if="${error}" class="alert alert-danger flash-message" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i><span th:text="${error}"></span>
+    </div>
+
+    <div class="table-container">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>City</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="c : ${customers}">
+                        <td th:text="${c.id}"></td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-2" style="width:34px; height:34px; font-weight:700; font-size:0.8rem;" th:text="${#strings.toUpperCase(#strings.substring(c.name, 0, 2))}"></div>
+                                <span class="fw-bold" th:text="${c.name}"></span>
+                            </div>
+                        </td>
+                        <td><i class="bi bi-envelope me-1 text-muted"></i><span th:text="${c.email}"></span></td>
+                        <td><i class="bi bi-telephone me-1 text-muted"></i><span th:text="${c.phone}"></span></td>
+                        <td><i class="bi bi-geo-alt me-1 text-muted"></i><span th:text="${c.city}"></span></td>
+                        <td>
+                            <a th:href="@{/view/customers/edit/{id}(id=${c.id})}" class="btn btn-sm btn-outline-primary btn-action me-1">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(customers)}">
+                        <td colspan="6" class="text-center text-muted py-4">
+                            <i class="bi bi-people fs-1 d-block mb-2"></i>No customers found.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

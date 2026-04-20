@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}"><title>BusBooking</title></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<div class="page-title-bar">
+    <div class="container">
+        <h2><i class="bi bi-ticket-perforated me-2"></i>Available Trips - Book Now</h2>
+    </div>
+</div>
+
+<div class="container">
+    <div th:if="${message}" class="alert alert-success flash-message" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i><span th:text="${message}"></span>
+    </div>
+    <div th:if="${error}" class="alert alert-danger flash-message" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i><span th:text="${error}"></span>
+    </div>
+
+    <div th:if="${#lists.isEmpty(trips)}" class="text-center py-5">
+        <i class="bi bi-calendar-x display-1 text-muted"></i>
+        <h4 class="mt-3 text-muted">No trips available at the moment</h4>
+        <p class="text-muted">Please check back later for upcoming trips.</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6" th:each="t : ${trips}">
+            <div class="card trip-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <span class="route-info">
+                                <span th:text="${t.fromCity}"></span>
+                                <i class="bi bi-arrow-right route-arrow"></i>
+                                <span th:text="${t.toCity}"></span>
+                            </span>
+                        </div>
+                        <span class="badge bg-info fs-6" th:text="${t.busType}"></span>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <small class="text-muted d-block">Departure</small>
+                            <strong th:text="${t.departureTime}"></strong>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block">Arrival</small>
+                            <strong th:text="${t.arrivalTime}"></strong>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <small class="text-muted d-block">Boarding</small>
+                            <span th:text="${t.boardingAddress}"></span>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block">Dropping</small>
+                            <span th:text="${t.droppingAddress}"></span>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-success me-2">
+                                <i class="bi bi-person-fill me-1"></i>
+                                <span th:text="${t.availableSeats}"></span> Seats Available
+                            </span>
+                            <span class="fw-bold text-primary fs-5" th:text="'Rs. ' + ${t.fare}"></span>
+                        </div>
+                        <a th:href="@{/view/bookings/trip/{id}(id=${t.tripId})}" class="btn btn-primary">
+                            <i class="bi bi-ticket-perforated me-1"></i>Book Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mb-4"></div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}"><title>BusBooking</title></head>
+<body class="bg-light">
+
+<nav th:replace="~{fragments/header :: navbar}" aria-label="Main navigation"></nav>
+
+<main class="container py-4">
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/members}" class="text-decoration-none">Members</a></li>
+            <li class="breadcrumb-item">
+                <a th:href="@{/members/{id}(id=${member.id})}" class="text-decoration-none"
+                   th:text="${member.name}">Member</a>
+            </li>
+            <li class="breadcrumb-item active" th:text="${operation.name}">Operation</li>
+        </ol>
+    </nav>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center flex-wrap gap-3">
+                <span class="badge fs-6 px-3 py-2"
+                      th:classappend="${operation.method == 'GET'} ? 'bg-success' :
+                                     (${operation.method == 'POST'} ? 'bg-primary' :
+                                     (${operation.method == 'PUT'} ? 'bg-warning text-dark' :
+                                     (${operation.method == 'DELETE'} ? 'bg-danger' : 'bg-secondary')))"
+                      th:text="${operation.method}">GET</span>
+                <code class="fs-6" th:text="${operation.endpoint}">/api/...</code>
+                <h4 class="mb-0 ms-auto fw-semibold" th:text="${operation.name}">Operation</h4>
+            </div>
+            <p class="text-muted small mb-0 mt-2" th:text="${operation.description}">Description</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Left: form -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0"><i class="bi bi-pencil-square me-2 text-primary"></i>Request</h5>
+                </div>
+                <div class="card-body p-4">
+
+                    <!-- Booking lookup helper (only on Create Payment) -->
+                    <div th:if="${serviceKey == 'payments' and operation.name == 'Create'}"
+                         class="alert alert-info border-0 mb-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-search me-2 fs-5"></i>
+                            <strong>Quick Fill from Booking</strong>
+                        </div>
+                        <p class="small mb-2">Enter a Booking ID to auto-load Booking ID, Customer ID and Total Cost from the booking &amp; trip.</p>
+                        <div class="input-group input-group-sm mb-2">
+                            <input type="number" id="bookingLookupId" class="form-control" placeholder="e.g. 1"/>
+                            <button type="button" id="bookingLookupBtn" class="btn btn-primary">
+                                <i class="bi bi-arrow-down-circle me-1"></i>Load
+                            </button>
+                        </div>
+                        <div id="bookingLookupOut" class="small"></div>
+                    </div>
+
+                    <!-- PDF Download (single, by path id) -->
+                    <form th:if="${operation.inputKind == 'PDF_DOWNLOAD'}"
+                          th:action="@{/members/{id}/operation/download(id=${member.id}, service=${serviceKey}, operation=${operation.name})}"
+                          method="get" class="vstack gap-3">
+                        <div>
+                            <label for="pdfPathId" class="form-label fw-semibold">Record ID</label>
+                            <input type="number" name="pathId" id="pdfPathId" class="form-control" required
+                                   placeholder="Enter the booking or payment ID" aria-label="pathId"/>
+                            <div class="form-text">A PDF boarding pass will be generated and downloaded.</div>
+                        </div>
+                        <input type="hidden" name="service" th:value="${serviceKey}" aria-label="service"/>
+                        <input type="hidden" name="operation" th:value="${operation.name}" aria-label="operation"/>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-download me-1"></i>Download PDF
+                        </button>
+                    </form>
+
+                    <!-- PDF Download with query params (group ticket) -->
+                    <form th:if="${operation.inputKind == 'PDF_DOWNLOAD_QUERY'}"
+                          th:action="${operation.endpoint}"
+                          method="get" class="vstack gap-3">
+                        <h6 class="text-muted mt-2 mb-0">
+                            <i class="bi bi-funnel me-1"></i>Query Parameters
+                        </h6>
+                        <div th:each="field : ${operation.fields}">
+                            <label class="form-label">
+                                <span th:text="${field.label}">Label</span>
+                                <input th:type="${field.type}"
+                                       th:name="${field.name}"
+                                       class="form-control"
+                                       th:required="${field.required}"
+                                       th:placeholder="${field.placeholder}" th:aria-label="${field.name}"/>
+                            </label>
+                            <div class="form-text" th:if="${field.helpText != null}" th:text="${field.helpText}"></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-download me-1"></i>Download Group Ticket PDF
+                        </button>
+                    </form>
+
+                    <!-- Standard CRUD form -->
+                    <form th:if="${operation.inputKind != 'PDF_DOWNLOAD' and operation.inputKind != 'PDF_DOWNLOAD_QUERY'}"
+                          th:action="@{/members/{id}/operation/execute(id=${member.id})}"
+                          method="post" class="vstack gap-3" id="opForm">
+
+                        <input type="hidden" name="service" th:value="${serviceKey}" aria-label="service"/>
+                        <input type="hidden" name="operation" th:value="${operation.name}" aria-label="operation"/>
+
+                        <!-- ID input for operations that need it -->
+                        <div th:if="${operation.inputKind == 'ID' or operation.inputKind == 'ID_AND_BODY'}">
+                            <label for="execPathId" class="form-label fw-semibold">Record ID</label>
+                            <input type="number" name="pathId" id="execPathId" class="form-control"
+                                   th:value="${submittedPathId}" required placeholder="Enter the ID" aria-label="pathId"/>
+                            <div class="form-text">Used for path variable <code>{id}</code>.</div>
+                        </div>
+
+                        <!-- DTO body fields / Query params -->
+                        <div th:if="${operation.inputKind == 'BODY' or operation.inputKind == 'ID_AND_BODY' or operation.inputKind == 'QUERY'}"
+                             class="vstack gap-3">
+                            <h6 class="text-muted mt-2 mb-0"
+                                th:if="${operation.inputKind == 'QUERY'}">
+                                <i class="bi bi-funnel me-1"></i>Query Parameters
+                            </h6>
+                            <h6 class="text-muted mt-2 mb-0"
+                                th:unless="${operation.inputKind == 'QUERY'}">
+                                <i class="bi bi-braces me-1"></i>Request Body
+                            </h6>
+                            <div th:each="field : ${operation.fields}">
+                                <label class="form-label">
+                                    <span th:text="${field.label}">Label</span>
+                                    <textarea th:if="${field.type == 'textarea'}"
+                                              th:name="${field.name}" class="form-control" rows="3"
+                                              th:required="${field.required}"
+                                              th:placeholder="${field.placeholder}"
+                                              th:text="${submittedForm != null} ? ${submittedForm.get(field.name)} : ''" th:aria-label="${field.name}"></textarea>
+                                    <input th:unless="${field.type == 'textarea'}"
+                                           th:type="${field.type}"
+                                           th:name="${field.name}"
+                                           class="form-control"
+                                           th:required="${field.required}"
+                                           th:placeholder="${field.placeholder}"
+                                           th:value="${submittedForm != null} ? ${submittedForm.get(field.name)} : ''" th:aria-label="${field.name}"/>
+                                </label>
+                                <div class="form-text" th:if="${field.helpText != null}" th:text="${field.helpText}"></div>
+                            </div>
+                        </div>
+
+                        <!-- No input hint for GET All -->
+                        <div th:if="${operation.inputKind == 'NONE'}" class="alert alert-secondary mb-0 small">
+                            <i class="bi bi-info-circle me-1"></i>This operation requires no input. Click Execute to fetch all records.
+                        </div>
+
+                        <div class="d-flex gap-2 pt-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-play-circle me-1"></i>Execute
+                            </button>
+                            <a th:href="@{/members/{id}(id=${member.id})}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1"></i>Back
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: response -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white border-bottom d-flex align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-arrow-return-right me-2 text-primary"></i>Response</h5>
+                    <span th:if="${result != null}"
+                          class="badge ms-auto"
+                          th:classappend="${result.success} ? 'bg-success' : 'bg-danger'"
+                          th:text="${result.statusCode}">200</span>
+                </div>
+                <div class="card-body p-4">
+
+                    <div th:if="${result == null}" class="text-center text-muted py-5">
+                        <i class="bi bi-hourglass-split fs-1 text-secondary d-block mb-2"></i>
+                        <p class="mb-0">Waiting for execution. Response will appear here.</p>
+                    </div>
+
+                    <div th:if="${result != null and result.success}"
+                         class="alert alert-success">
+                        <i class="bi bi-check-circle-fill me-1"></i>
+                        <span th:text="${result.message}">OK</span>
+                    </div>
+                    <div th:if="${result != null and !result.success}"
+                         class="alert alert-danger">
+                        <i class="bi bi-x-circle-fill me-1"></i>
+                        <span th:text="${result.message}">Error</span>
+                    </div>
+
+                    <div th:if="${result != null}" class="mb-3">
+                        <strong class="small text-muted">Endpoint</strong>
+                        <div>
+              <span class="badge bg-dark me-2"
+                    th:text="${result.httpMethod != null ? result.httpMethod : operation.method}">GET</span>
+                            <code th:text="${result.url}">/api/...</code>
+                        </div>
+                    </div>
+
+                    <div th:if="${result != null and result.requestBody != null}" class="mb-3">
+                        <strong class="small text-muted">Request Body</strong>
+                        <pre class="bg-light border rounded p-3 small mb-0"
+                             th:text="${result.requestBody}">{}</pre>
+                    </div>
+
+                    <div th:if="${result != null and result.responseBody != null and !#strings.isEmpty(result.responseBody)}">
+                        <div class="d-flex align-items-center mb-2">
+                            <strong class="small text-muted">Response Body</strong>
+                            <fieldset class="ms-auto btn-group btn-group-sm border-0 p-0 m-0" aria-label="Response view toggle">
+                                <button type="button" class="btn btn-outline-primary active" id="viewTableBtn">
+                                    <i class="bi bi-table me-1"></i>Table
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" id="viewRawBtn">
+                                    <i class="bi bi-braces me-1"></i>Raw JSON
+                                </button>
+                            </fieldset>
+                        </div>
+                        <textarea id="rawResponse" hidden th:text="${result.responseBody}"></textarea>
+                        <div id="tableOutput" class="border rounded bg-white"
+                             style="max-height:500px; overflow:auto"></div>
+                        <pre id="rawOutput" class="bg-light border rounded p-3 small mb-0 d-none"
+                             style="max-height:500px; overflow:auto"
+                             th:text="${result.responseBody}">{}</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<script th:inline="none">
+/* ---------- JSON -> Table renderer ---------- */
+(function () {
+    function esc(s) {
+        if (s === null || s === undefined) return '';
+        return String(s)
+            .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;').replaceAll("'", '&#39;');
+    }
+
+    function formatCell(v) {
+        if (v === null || v === undefined) return '<span class="text-muted fst-italic">null</span>';
+        if (typeof v === 'boolean') return v
+            ? '<span class="badge bg-success">true</span>'
+            : '<span class="badge bg-secondary">false</span>';
+        if (Array.isArray(v)) {
+            if (v.length === 0) return '<span class="text-muted small">[ ]</span>';
+            if (v.every(x => typeof x !== 'object' || x === null)) {
+                return v.map(esc).join(', ');
+            }
+            return '<code class="small">' + esc(JSON.stringify(v)) + '</code>';
+        }
+        if (typeof v === 'object') {
+            return '<code class="small">' + esc(JSON.stringify(v)) + '</code>';
+        }
+        return esc(v);
+    }
+
+    function renderArrayOfObjects(arr) {
+        var keys = [];
+        var seen = {};
+        arr.forEach(function (row) {
+            if (row && typeof row === 'object' && !Array.isArray(row)) {
+                Object.keys(row).forEach(function (k) {
+                    if (!seen[k]) { seen[k] = true; keys.push(k); }
+                });
+            }
+        });
+        if (keys.length === 0) {
+            return '<div class="p-3 small">' +
+                arr.map(function (v) { return formatCell(v); }).join('<br>') + '</div>';
+        }
+        var html = '<div class="table-responsive"><table class="table table-sm table-striped table-hover mb-0 align-middle">';
+        html += '<thead class="table-dark"><tr><th class="text-muted">#</th>';
+        keys.forEach(function (k) { html += '<th>' + esc(k) + '</th>'; });
+        html += '</tr></thead><tbody>';
+        arr.forEach(function (row, i) {
+            html += '<tr><td class="text-muted small">' + (i + 1) + '</td>';
+            keys.forEach(function (k) {
+                html += '<td>' + formatCell(row ? row[k] : null) + '</td>';
+            });
+            html += '</tr>';
+        });
+        html += '</tbody></table></div>';
+        return html;
+    }
+
+    function renderSingleObject(obj) {
+        var keys = Object.keys(obj);
+        if (keys.length === 0) return '<div class="p-3 small text-muted">Empty object</div>';
+        var html = '<div class="table-responsive"><table class="table table-sm table-striped mb-0 align-middle">';
+        html += '<thead class="table-dark"><tr><th style="width:35%">Field</th><th>Value</th></tr></thead><tbody>';
+        keys.forEach(function (k) {
+            var v = obj[k];
+            var cell;
+            if (Array.isArray(v) && v.length > 0 && v.every(function (x) { return x && typeof x === 'object'; })) {
+                cell = renderArrayOfObjects(v);
+            } else {
+                cell = formatCell(v);
+            }
+            html += '<tr><td class="fw-semibold text-capitalize">' + esc(k) + '</td><td>' + cell + '</td></tr>';
+        });
+        html += '</tbody></table></div>';
+        return html;
+    }
+
+    function renderEmpty() {
+        return '<div class="p-4 text-center text-muted small">' +
+            '<i class="bi bi-inbox fs-3 d-block mb-2"></i>No records.</div>';
+    }
+
+    function renderJson(data, target) {
+        if (data === null || data === undefined) {
+            target.innerHTML = '<div class="p-3 text-muted small">null</div>';
+            return;
+        }
+        if (Array.isArray(data)) {
+            if (data.length === 0) { target.innerHTML = renderEmpty(); return; }
+            if (data.every(function (x) { return x && typeof x === 'object' && !Array.isArray(x); })) {
+                target.innerHTML = renderArrayOfObjects(data);
+            } else {
+                target.innerHTML = '<div class="p-3 small">' +
+                    data.map(function (v, i) {
+                        return '<div><strong>' + (i + 1) + '.</strong> ' + formatCell(v) + '</div>';
+                    }).join('') + '</div>';
+            }
+            return;
+        }
+        if (typeof data === 'object') {
+            target.innerHTML = renderSingleObject(data);
+            return;
+        }
+        target.innerHTML = '<div class="p-3">' + formatCell(data) + '</div>';
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var raw = document.getElementById('rawResponse');
+        var out = document.getElementById('tableOutput');
+        var rawOut = document.getElementById('rawOutput');
+        var tBtn = document.getElementById('viewTableBtn');
+        var rBtn = document.getElementById('viewRawBtn');
+
+        if (raw && out) {
+            var text = (raw.value || '').trim();
+            if (text) {
+                try {
+                    renderJson(JSON.parse(text), out);
+                } catch (e) {
+                    console.warn('Response is not valid JSON, rendering as text.', e);
+                    out.innerHTML = '<pre class="p-3 mb-0 small">' + esc(text) + '</pre>';
+                }
+            } else {
+                out.innerHTML = '<div class="p-3 text-muted small">Empty response</div>';
+            }
+        }
+
+        if (tBtn && rBtn && out && rawOut) {
+            tBtn.addEventListener('click', function () {
+                out.classList.remove('d-none');
+                rawOut.classList.add('d-none');
+                tBtn.classList.add('active'); rBtn.classList.remove('active');
+            });
+            rBtn.addEventListener('click', function () {
+                rawOut.classList.remove('d-none');
+                out.classList.add('d-none');
+                rBtn.classList.add('active'); tBtn.classList.remove('active');
+            });
+        }
+
+        /* ---------- Booking lookup helper for Create Payment ---------- */
+        var btn = document.getElementById('bookingLookupBtn');
+        if (btn) {
+            btn.addEventListener('click', async function () {
+                var idInput = document.getElementById('bookingLookupId');
+                var outEl = document.getElementById('bookingLookupOut');
+                var id = (idInput.value || '').trim();
+                if (!id) {
+                    outEl.innerHTML = '<span class="text-danger">Please enter a Booking ID.</span>';
+                    return;
+                }
+                outEl.innerHTML = '<span class="text-muted">Loading...</span>';
+                try {
+                    var bRes = await fetch('/api/bookings/' + encodeURIComponent(id));
+                    if (!bRes.ok) throw new Error('Booking ' + id + ' not found');
+                    var b = await bRes.json();
+
+                    var tRes = await fetch('/api/trips/' + encodeURIComponent(b.tripId));
+                    if (!tRes.ok) throw new Error('Trip ' + b.tripId + ' not found');
+                    var t = await tRes.json();
+
+                    var bookingIdField = document.querySelector('#opForm input[name="bookingId"]');
+                    var amountField = document.querySelector('#opForm input[name="amount"]');
+                    if (bookingIdField) bookingIdField.value = b.bookingId;
+                    if (amountField && t.fare !== null && t.fare !== undefined) amountField.value = t.fare;
+
+                    var info = '<table class="table table-sm table-bordered mb-0 bg-white">' +
+                        '<tbody>' +
+                        '<tr><th class="table-light" style="width:45%">Booking ID</th><td>' + esc(b.bookingId) + '</td></tr>' +
+                        '<tr><th class="table-light">Trip ID</th><td>' + esc(b.tripId) + '</td></tr>' +
+                        '<tr><th class="table-light">Seat Number</th><td>' + esc(b.seatNumber) + '</td></tr>' +
+                        '<tr><th class="table-light">Status</th><td>' + esc(b.status) + '</td></tr>' +
+                        '<tr><th class="table-light">Route</th><td>' + esc(t.fromCity) + ' &rarr; ' + esc(t.toCity) + '</td></tr>' +
+                        '<tr><th class="table-light">Fare (Total Cost)</th><td><strong>Rs. ' + esc(t.fare) + '</strong></td></tr>' +
+                        '</tbody></table>' +
+                        '<div class="small text-success mt-2"><i class="bi bi-check-circle me-1"></i>' +
+                        'Booking ID &amp; Amount pre-filled. Enter Customer ID and click Execute.</div>';
+                    outEl.innerHTML = info;
+                } catch (e) {
+                    outEl.innerHTML = '<span class="text-danger">' + esc(e.message || 'Lookup failed') + '</span>';
+                }
+            });
+        }
+    });
+})();
+</script>
+
+</body>
+</html>

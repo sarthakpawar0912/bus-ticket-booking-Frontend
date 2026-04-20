@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}"><title>BusBooking</title></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+
+            <!-- Success Animation -->
+            <div class="text-center mb-4">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success bg-opacity-10 mb-3"
+                     style="width:100px; height:100px; animation: scaleIn 0.5s ease;">
+                    <i class="bi bi-check-circle-fill text-success" style="font-size:3.5rem;"></i>
+                </div>
+                <h2 class="fw-bold text-success mb-1">Payment Successful!</h2>
+                <p class="text-muted mb-0" th:text="${payment.message}">Your payment has been processed successfully.</p>
+                <div class="d-inline-flex align-items-center bg-success bg-opacity-10 rounded-pill px-3 py-1 mt-2">
+                    <i class="bi bi-shield-check text-success me-1"></i>
+                    <small class="text-success fw-bold">Transaction Verified</small>
+                </div>
+            </div>
+
+            <!-- Transaction Receipt Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-success text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-receipt-cutoff me-2"></i>Transaction Receipt</h5>
+                        <span class="badge bg-white text-success">PAID</span>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Amount Highlight -->
+                    <div class="text-center py-3 mb-3 rounded-3" style="background: linear-gradient(135deg, #e8f5e9, #f1f8e9);">
+                        <small class="text-muted d-block">Total Amount Paid</small>
+                        <span class="fw-bold text-success" style="font-size:2.2rem;"
+                              th:text="'&#8377; ' + ${totalAmount != null ? totalAmount : payment.amount}"></span>
+                        <small th:if="${seatCount != null and seatCount > 1}" class="text-muted d-block mt-1"
+                               th:text="'(' + ${seatCount} + ' seats x &#8377; ' + ${perSeatFare != null ? perSeatFare : payment.amount} + ' each)'"></small>
+                    </div>
+
+                    <!-- Details Grid -->
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="p-3 rounded-3 bg-light h-100">
+                                <small class="text-muted d-block mb-1"><i class="bi bi-hash me-1"></i>Payment ID(s)</small>
+                                <span th:if="${allPaymentIds != null and #lists.size(allPaymentIds) > 1}"
+                                      class="fw-bold" th:text="${#strings.listJoin(allPaymentIds, ', ')}"></span>
+                                <span th:if="${allPaymentIds == null or #lists.size(allPaymentIds) <= 1}"
+                                      class="fw-bold" th:text="${payment.paymentId}"></span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 rounded-3 bg-light h-100">
+                                <small class="text-muted d-block mb-1"><i class="bi bi-people me-1"></i>Seats Booked</small>
+                                <span class="fw-bold" th:text="${seatCount != null ? seatCount : 1}"></span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 rounded-3 bg-light h-100">
+                                <small class="text-muted d-block mb-1"><i class="bi bi-person me-1"></i>Customer ID</small>
+                                <span class="fw-bold" th:text="${payment.customerId}"></span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 rounded-3 bg-light h-100">
+                                <small class="text-muted d-block mb-1"><i class="bi bi-patch-check me-1"></i>Status</small>
+                                <span class="badge bg-success px-3 py-2" th:text="${payment.paymentStatus}"></span>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="p-3 rounded-3 bg-light">
+                                <small class="text-muted d-block mb-1"><i class="bi bi-calendar-check me-1"></i>Transaction Date</small>
+                                <span class="fw-bold" th:text="${payment.paymentDate}"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-3">
+
+                    <!-- Transaction ID (fake but looks real) -->
+                    <div class="text-center">
+                        <small class="text-muted">Transaction Reference</small>
+                        <div class="fw-bold text-primary" style="font-family: monospace; letter-spacing: 1px;"
+                             th:text="'TXN' + ${payment.paymentId} + 'BK' + ${payment.bookingId} + 'X' + ${#strings.substring(T(java.util.UUID).randomUUID().toString(), 0, 8).toUpperCase()}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seats info -->
+            <div th:if="${seatCount != null and seatCount > 1}" class="text-center mb-3">
+                <span class="badge bg-primary fs-6 px-3 py-2">
+                    <i class="bi bi-people-fill me-1"></i><span th:text="${seatCount}"></span> Seats Paid
+                    &mdash; Total: <span th:text="'&#8377; ' + ${totalAmount}"></span>
+                </span>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex flex-wrap gap-3 justify-content-center">
+                <!-- Unified Download Ticket button. /api/payments/{id}/ticket
+                     auto-detects sibling payments and returns a group PDF when
+                     seatCount > 1, or a single-seat PDF otherwise. -->
+                <a th:href="@{/api/payments/{id}/ticket(id=${payment.paymentId})}"
+                   class="btn btn-primary btn-lg px-4 shadow-sm">
+                    <i class="bi bi-download me-2"></i>Download Ticket
+                    <span th:if="${seatCount != null and seatCount > 1}"
+                          th:text="' (' + ${seatCount} + ' Seats)'"></span>
+                </a>
+                <a th:href="@{/view/bookings}" class="btn btn-outline-secondary btn-lg px-4">
+                    <i class="bi bi-ticket-perforated me-2"></i>Book More
+                </a>
+            </div>
+
+            <div class="text-center mt-4">
+                <a th:href="@{/}" class="text-muted text-decoration-none small">
+                    <i class="bi bi-house me-1"></i>Back to Home
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes scaleIn {
+        0% { transform: scale(0); opacity: 0; }
+        60% { transform: scale(1.2); }
+        100% { transform: scale(1); opacity: 1; }
+    }
+</style>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

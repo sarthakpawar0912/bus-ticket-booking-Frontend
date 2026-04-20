@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}"><title>Add Customer</title></head>
+<body class="bg-light">
+<nav th:replace="~{fragments/header :: navbar}"></nav>
+
+<main class="container py-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h2 class="fw-bold mb-0"><i class="bi bi-person-plus-fill me-2 text-primary"></i>Add Customer</h2>
+        <a th:href="@{/view/customers}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+            <form th:action="@{/view/customers/save}" method="post" class="row g-3">
+
+                <!-- Personal details -->
+                <div class="col-12">
+                    <h6 class="fw-semibold text-primary mb-0">
+                        <i class="bi bi-person me-1"></i>Personal Details
+                    </h6>
+                    <hr class="mt-1"/>
+                </div>
+                <div class="col-md-6">
+                    <label for="addcustomer_name" class="form-label fw-semibold">Full Name</label>
+                    <input type="text" class="form-control" name="name" id="addcustomer_name" required
+                           placeholder="Sarthak Pawar" aria-label="name"/>
+                </div>
+                <div class="col-md-6">
+                    <label for="addcustomer_email" class="form-label fw-semibold">Email</label>
+                    <input type="email" class="form-control" name="email" id="addcustomer_email" required
+                           placeholder="sarthak@example.com" aria-label="email"/>
+                </div>
+                <div class="col-md-6">
+                    <label for="addcustomer_phone" class="form-label fw-semibold">Phone (10 digits)</label>
+                    <input type="tel" class="form-control" name="phone" id="addcustomer_phone" required
+                           pattern="^\d{10}$" placeholder="9876543210" aria-label="phone"/>
+                </div>
+
+                <!-- Address details -->
+                <div class="col-12 mt-4">
+                    <h6 class="fw-semibold text-primary mb-0">
+                        <i class="bi bi-geo-alt me-1"></i>Your Address
+                    </h6>
+                    <div class="form-text">Enter your own address details below. A new address
+                        record will be created and linked to your customer profile.</div>
+                    <hr class="mt-1"/>
+                </div>
+                <div class="col-12">
+                    <label for="addcustomer_address" class="form-label fw-semibold">Street Address</label>
+                    <input type="text" class="form-control" name="address" id="addcustomer_address" required
+                           placeholder="Flat 4B, Station Road" aria-label="address"/>
+                </div>
+                <div class="col-md-5">
+                    <label for="addcustomer_city" class="form-label fw-semibold">City</label>
+                    <input type="text" class="form-control" name="city" id="addcustomer_city" required
+                           placeholder="Mumbai" aria-label="city"/>
+                </div>
+                <div class="col-md-4">
+                    <label for="addcustomer_state" class="form-label fw-semibold">State</label>
+                    <input type="text" class="form-control" name="state" id="addcustomer_state" required
+                           placeholder="Maharashtra" aria-label="state"/>
+                </div>
+                <div class="col-md-3">
+                    <label for="addcustomer_zipCode" class="form-label fw-semibold">Zip Code (6 digits)</label>
+                    <input type="text" class="form-control" name="zipCode" id="addcustomer_zipCode" required
+                           pattern="^\d{6}$" placeholder="400001" aria-label="zipCode"/>
+                </div>
+
+                <div class="col-12 d-flex gap-2 pt-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i>Save Customer
+                    </button>
+                    <a th:href="@{/view/customers}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

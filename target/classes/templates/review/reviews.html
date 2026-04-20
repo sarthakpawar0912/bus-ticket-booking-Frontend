@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}"><title>BusBooking</title></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<div class="page-title-bar">
+    <div class="container d-flex justify-content-between align-items-center">
+        <h2><i class="bi bi-star-fill me-2"></i>Review Management</h2>
+        <a th:href="@{/view/reviews/add}" class="btn btn-light">
+            <i class="bi bi-plus-circle me-1"></i>Add Review
+        </a>
+    </div>
+</div>
+
+<div class="container">
+    <div th:if="${success}" class="alert alert-success flash-message" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i><span th:text="${success}"></span>
+    </div>
+    <div th:if="${error}" class="alert alert-danger flash-message" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i><span th:text="${error}"></span>
+    </div>
+
+    <div class="table-container">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer</th>
+                        <th>Trip</th>
+                        <th>Rating</th>
+                        <th>Comment</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="r : ${reviews}">
+                        <td th:text="${r.reviewId}"></td>
+                        <td th:text="${r.customerName}"></td>
+                        <td th:text="${r.tripInfo}"></td>
+                        <td>
+                            <span class="star-rating">
+                                <i th:each="i : ${#numbers.sequence(1, 5)}"
+                                   th:classappend="${i <= r.rating ? 'bi-star-fill' : 'bi-star'}"
+                                   class="bi text-warning"></i>
+                            </span>
+                        </td>
+                        <td th:text="${r.comment}"></td>
+                        <td th:text="${r.reviewDate}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(reviews)}">
+                        <td colspan="6" class="text-center text-muted py-4">No reviews found.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

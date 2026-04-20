@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}"><title>BusBooking</title></head>
+<body class="bg-light">
+<nav th:replace="~{fragments/header :: navbar}"></nav>
+
+<main class="container py-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h2 class="fw-bold mb-0"><i class="bi bi-file-earmark-pdf me-2 text-primary"></i>Download Booking Ticket</h2>
+        <a th:href="@{/view/bookings}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+            <p class="text-muted">
+                Enter a booking ID to generate and download the boarding-pass PDF.
+                This form uses the real backend <code>/api/bookings/{id}/ticket</code> endpoint.
+            </p>
+            <form action="/api/bookings" method="get" onsubmit="event.preventDefault();
+                        const id = this.bookingId.value;
+                        window.location.href = '/api/bookings/' + id + '/ticket';" class="row g-3">
+                <div class="col-md-6">
+                    <label for="ticketdownload_bookingId" class="form-label fw-semibold">Booking ID</label>
+                    <input type="number" name="bookingId" id="ticketdownload_bookingId" class="form-control" required
+                           placeholder="101" min="1" aria-label="bookingId"/>
+                </div>
+                <div class="col-12 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-download me-1"></i>Download PDF
+                    </button>
+                    <a th:href="@{/view/bookings}" class="btn btn-outline-secondary">Back</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}"><title>BusBooking</title></head>
+<body class="bg-light">
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<div class="page-title-bar">
+    <div class="container">
+        <h2><i class="bi bi-credit-card me-2"></i>Payment Management</h2>
+    </div>
+</div>
+
+<div class="container py-4">
+    <div th:if="${message}" class="alert alert-success flash-message">
+        <i class="bi bi-check-circle-fill me-2"></i><span th:text="${message}"></span>
+    </div>
+    <div th:if="${error}" class="alert alert-danger flash-message">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i><span th:text="${error}"></span>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white border-bottom d-flex align-items-center">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-list-ul me-2 text-primary"></i>Payments</h5>
+            <span class="badge bg-secondary ms-3"
+                  th:text="${#lists.size(paymentGroups)} + ' transactions'">0</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Payment ID</th>
+                        <th>Booking ID</th>
+                        <th>Customer ID</th>
+                        <th>Seats</th>
+                        <th>Total Amount</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="g : ${paymentGroups}">
+                        <td class="fw-semibold" th:text="${g.firstPaymentId}">1</td>
+                        <td><code th:text="${g.bookingIds[0]}">1</code></td>
+                        <td th:text="${g.customerId}">-</td>
+                        <td>
+                            <span class="badge bg-primary-subtle text-primary"
+                                  th:text="${g.seatCount} + (${g.seatCount} == 1 ? ' seat' : ' seats')">1</span>
+                        </td>
+                        <td class="fw-semibold" th:text="'Rs. ' + ${g.totalAmount}">Rs. 0</td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${g.paymentStatus.name() == 'Success' ? 'bg-success' : 'bg-danger'}"
+                                  th:text="${g.paymentStatus}">Success</span>
+                        </td>
+                        <td class="small text-muted" th:text="${g.paymentDate}">-</td>
+                        <td class="text-end">
+                            <!-- Single unified "Download Ticket" button.
+                                 /api/payments/{id}/ticket auto-detects multi-seat groups (same customer + timestamp)
+                                 and returns a consolidated group PDF. -->
+                            <a th:href="@{/api/payments/{id}/ticket(id=${g.firstPaymentId})}"
+                               class="btn btn-sm btn-primary">
+                                <i class="bi bi-download me-1"></i>Download Ticket
+                            </a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(paymentGroups)}">
+                        <td colspan="8" class="text-center text-muted py-4">No payments yet.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-muted small mt-3">
+        <i class="bi bi-info-circle me-1"></i>
+        Payments made together (same customer, same time) are shown as a single transaction with one
+        Payment ID and one Booking ID representing the group. The Download Ticket button produces one
+        consolidated PDF listing every seat in the group.
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}"><title>BusBooking</title></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<div class="container my-4">
+    <div class="form-container">
+        <h2><i class="bi bi-calendar-event me-2 text-primary"></i>Add Trip</h2>
+        <form th:action="@{/view/trips/save}" method="post">
+            <div class="mb-3">
+                <label for="routeId" class="form-label">Route</label>
+                <select class="form-select" id="routeId" name="routeId" required>
+                    <option value="">-- Select Route --</option>
+                    <option th:each="r : ${routes}"
+                            th:value="${r.routeId}"
+                            th:text="${r.fromCity + ' -> ' + r.toCity}"></option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="busId" class="form-label">Bus</label>
+                <select class="form-select" id="busId" name="busId" required>
+                    <option value="">-- Select Bus --</option>
+                    <option th:each="b : ${buses}"
+                            th:value="${b.busId}"
+                            th:text="${b.registrationNumber + ' (' + b.type + ', ' + b.capacity + ' seats)'}"></option>
+                </select>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="boardingAddressId" class="form-label">Boarding Address</label>
+                    <select class="form-select" id="boardingAddressId" name="boardingAddressId" required>
+                        <option value="">-- Select Boarding Point --</option>
+                        <option th:each="address : ${addresses}"
+                                th:value="${address.addressId}"
+                                th:text="${address.city + ' - ' + address.address}"></option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="droppingAddressId" class="form-label">Dropping Address</label>
+                    <select class="form-select" id="droppingAddressId" name="droppingAddressId" required>
+                        <option value="">-- Select Dropping Point --</option>
+                        <option th:each="address : ${addresses}"
+                                th:value="${address.addressId}"
+                                th:text="${address.city + ' - ' + address.address}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="departureTime" class="form-label">Departure Time</label>
+                    <input type="datetime-local" class="form-control" id="departureTime" name="departureTime" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="arrivalTime" class="form-label">Arrival Time</label>
+                    <input type="datetime-local" class="form-control" id="arrivalTime" name="arrivalTime" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="driver1Id" class="form-label">Driver 1</label>
+                    <select class="form-select" id="driver1Id" name="driver1Id" required>
+                        <option value="">-- Select Driver --</option>
+                        <option th:each="d : ${drivers}"
+                                th:value="${d.driverId}"
+                                th:text="${d.name + ' (' + d.licenseNumber + ')'}"></option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="driver2Id" class="form-label">Driver 2 (Optional)</label>
+                    <select class="form-select" id="driver2Id" name="driver2Id">
+                        <option value="">-- Select Driver --</option>
+                        <option th:each="d : ${drivers}"
+                                th:value="${d.driverId}"
+                                th:text="${d.name + ' (' + d.licenseNumber + ')'}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="availableSeats" class="form-label">Available Seats</label>
+                    <input type="number" class="form-control" id="availableSeats" name="availableSeats" min="1" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="fare" class="form-label">Fare (Rs.)</label>
+                    <input type="number" class="form-control" id="fare" name="fare" step="0.01" min="0.01" required>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="tripDate" class="form-label">Trip Date</label>
+                <input type="datetime-local" class="form-control" id="tripDate" name="tripDate" required>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle me-1"></i>Save Trip
+                </button>
+                <a th:href="@{/view/trips}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

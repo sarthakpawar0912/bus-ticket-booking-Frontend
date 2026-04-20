@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}"><title>BusBooking</title></head>
+<body class="bg-light">
+
+<nav th:replace="~{fragments/header :: navbar}" aria-label="Main navigation"></nav>
+
+<main class="container py-4">
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/members}" class="text-decoration-none">Members</a></li>
+            <li class="breadcrumb-item active" th:text="${member.name}">Member</li>
+        </ol>
+    </nav>
+
+    <!-- Profile header -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4 d-flex align-items-center flex-wrap gap-3">
+            <img class="member-avatar"
+                 th:src="${member.image}" th:alt="${member.name}"
+                 th:style="'border: 3px solid ' + ${member.color}"/>
+            <div class="flex-grow-1">
+                <h2 class="fw-bold mb-1" th:text="${member.name}">Member</h2>
+                <p class="text-muted mb-2" th:text="${member.role}">Role</p>
+                <div class="d-flex flex-wrap gap-2">
+          <span th:each="s : ${member.services}"
+                class="badge bg-primary-subtle text-primary border border-primary-subtle">
+            <i class="bi me-1" th:classappend="${s.icon}"></i>
+            <span th:text="${s.name}">Service</span>
+          </span>
+                </div>
+            </div>
+            <a th:href="@{/members}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back
+            </a>
+        </div>
+    </div>
+
+    <!-- Services accordion -->
+    <h4 class="fw-bold mb-3"><i class="bi bi-collection me-2"></i>Services Owned</h4>
+
+    <div class="accordion" id="servicesAccordion">
+        <div class="accordion-item mb-3 border-0 shadow-sm rounded"
+             th:each="s, iStat : ${member.services}">
+            <h2 class="accordion-header">
+                <button class="accordion-button fw-semibold"
+                        th:classappend="${iStat.first} ? '' : 'collapsed'"
+                        type="button" data-bs-toggle="collapse"
+                        th:data-bs-target="'#svc-' + ${s.key}"
+                        th:aria-expanded="${iStat.first}">
+                    <i class="bi me-2" th:classappend="${s.icon}"></i>
+                    <span th:text="${s.name}">Service</span>
+                    <span class="badge bg-secondary-subtle text-secondary ms-3 fw-normal"
+                          th:text="${#lists.size(s.operations)} + ' operations'">ops</span>
+                </button>
+            </h2>
+            <div th:id="'svc-' + ${s.key}" class="accordion-collapse collapse"
+                 th:classappend="${iStat.first} ? 'show' : ''"
+                 data-bs-parent="#servicesAccordion">
+                <div class="accordion-body">
+                    <p class="text-muted small" th:text="${s.description}">Description</p>
+
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead class="table-light">
+                            <tr>
+                                <th style="width:22%">Operation</th>
+                                <th style="width:12%">Method</th>
+                                <th>Endpoint</th>
+                                <th style="width:18%" class="text-end">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="op : ${s.operations}">
+                                <td class="fw-semibold" th:text="${op.name}">Create</td>
+                                <td>
+                  <span class="badge"
+                        th:classappend="${op.method == 'GET'} ? 'bg-success' :
+                                       (${op.method == 'POST'} ? 'bg-primary' :
+                                       (${op.method == 'PUT'} ? 'bg-warning text-dark' :
+                                       (${op.method == 'DELETE'} ? 'bg-danger' : 'bg-secondary')))"
+                        th:text="${op.method}">GET</span>
+                                </td>
+                                <td><code th:text="${op.endpoint}">/api/...</code></td>
+                                <td class="text-end">
+                                    <a class="btn btn-sm btn-primary"
+                                       th:href="@{/members/{id}/operation(id=${member.id}, service=${s.key}, operation=${op.name})}">
+                                        <i class="bi bi-play-circle me-1"></i>Perform
+                                    </a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<style>
+    .member-avatar {
+        width: 72px; height: 72px; border-radius: 50%;
+        object-fit: cover;
+        box-shadow: 0 4px 12px rgba(0,0,0,.15);
+    }
+    .accordion-button:not(.collapsed) { background-color: #e8f0fe; color: #0a3d91; }
+</style>
+
+</body>
+</html>

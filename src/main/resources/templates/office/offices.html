@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}"><title>BusBooking</title></head>
+<body class="bg-light">
+<nav th:replace="~{fragments/header :: navbar}"></nav>
+
+<main class="container py-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h2 class="fw-bold mb-0"><i class="bi bi-shop me-2 text-primary"></i>Agency Offices</h2>
+        <a th:href="@{/view/offices/add}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>Add Office
+        </a>
+    </div>
+
+    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Office ID</th>
+                        <th>Agency ID</th>
+                        <th>Office Email</th>
+                        <th>Contact Person</th>
+                        <th>Contact Number</th>
+                        <th>Address ID</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="o : ${offices}">
+                        <td th:text="${o.officeId}">1</td>
+                        <td th:text="${o.agencyId}">1</td>
+                        <td th:text="${o.officeMail}">a@b.com</td>
+                        <td th:text="${o.officeContactPersonName}">Person</td>
+                        <td th:text="${o.officeContactNumber}">9999999999</td>
+                        <td th:text="${o.officeAddressId}">1</td>
+                        <td class="text-end">
+                            <a th:href="@{/view/offices/edit/{id}(id=${o.officeId})}"
+                               class="btn btn-sm btn-outline-warning">
+                                <i class="bi bi-pencil-square me-1"></i>Edit
+                            </a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(offices)}">
+                        <td colspan="7" class="text-center text-muted py-4">No offices registered yet.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

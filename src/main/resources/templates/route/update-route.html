@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}"><title>BusBooking</title></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<div class="container my-4">
+    <div class="form-container">
+        <h2><i class="bi bi-pencil-square me-2 text-primary"></i>Update Route</h2>
+        <form th:action="@{/view/routes/update/{id}(id=${route.routeId})}" method="post">
+            <div class="mb-3">
+                <label for="fromCity" class="form-label">From City</label>
+                <input type="text" class="form-control" id="fromCity" name="fromCity" th:value="${route.fromCity}" required>
+            </div>
+            <div class="mb-3">
+                <label for="toCity" class="form-label">To City</label>
+                <input type="text" class="form-control" id="toCity" name="toCity" th:value="${route.toCity}" required>
+            </div>
+            <div class="mb-3">
+                <label for="breakPoints" class="form-label">Break Points</label>
+                <input type="number" class="form-control" id="breakPoints" name="breakPoints" th:value="${route.breakPoints}" min="0">
+            </div>
+            <div class="mb-3">
+                <label for="duration" class="form-label">Duration (minutes)</label>
+                <input type="number" class="form-control" id="duration" name="duration" th:value="${route.duration}" min="1" required>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle me-1"></i>Update Route
+                </button>
+                <a th:href="@{/view/routes}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

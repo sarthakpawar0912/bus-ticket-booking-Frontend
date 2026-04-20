@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}"><title>BusBooking</title></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<div class="error-page">
+    <div class="container">
+        <h1>404</h1>
+        <h2>Page Not Found</h2>
+        <p class="text-muted mt-3 mb-4">The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.</p>
+        <a th:href="@{/}" class="btn btn-primary btn-lg">
+            <i class="bi bi-house me-2"></i>Go Back Home
+        </a>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

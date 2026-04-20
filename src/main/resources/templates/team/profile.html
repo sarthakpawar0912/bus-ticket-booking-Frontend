@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}"><title>BusBooking</title></head>
+<body class="bg-light">
+
+<nav th:replace="~{fragments/header :: navbar}"></nav>
+
+<main class="container py-4">
+
+    <!-- 1. HEADER SECTION -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4 d-flex align-items-center flex-wrap gap-3">
+            <img class="team-avatar"
+                 th:src="${member.photo}" th:alt="${member.name}"
+                 th:style="'border: 3px solid ' + ${member.color}"/>
+            <div class="flex-grow-1">
+                <h2 class="fw-bold mb-1" th:text="${member.name}">Name</h2>
+                <p class="text-muted mb-2" th:text="${member.role}">Role</p>
+                <div class="d-flex flex-wrap gap-2">
+                    <span th:each="moduleName : ${member.modules}"
+                          class="badge bg-primary-subtle text-primary border border-primary-subtle"
+                          th:text="${moduleName}">Module</span>
+                </div>
+            </div>
+            <a th:href="@{/team}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back to Team
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- 2. WORK SECTION -->
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0"><i class="bi bi-briefcase-fill text-primary me-2"></i>Work &amp; Responsibilities</h5>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted small">
+                        Core responsibilities owned by <strong th:text="${member.name}">Name</strong>
+                        within the Bus Ticket Booking System.
+                    </p>
+                    <ul class="mb-0">
+                        <li th:each="r : ${member.responsibilities}"
+                            th:text="${r}" class="mb-2">Responsibility</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. SCREENS SECTION -->
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0"><i class="bi bi-window-stack text-primary me-2"></i>Screens</h5>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted small">
+                        UI pages maintained by this member. Every screen is a live Thymeleaf view that
+                        renders real data in tables and forms - never raw JSON.
+                    </p>
+                    <div class="row g-2">
+                        <div class="col-md-6" th:each="s : ${member.screens}">
+                            <a th:href="@{${s.url}}"
+                               class="text-decoration-none text-reset d-flex align-items-center
+                                      border rounded px-3 py-2 screen-link">
+                                <i class="bi me-2 fs-5 text-primary" th:classappend="${s.icon}"></i>
+                                <span class="flex-grow-1 fw-semibold" th:text="${s.name}">Screen</span>
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. FUNCTIONAL ENDPOINTS SECTION -->
+    <div class="card shadow-sm border-0 mt-4">
+        <div class="card-header bg-white border-bottom">
+            <h5 class="mb-0"><i class="bi bi-hdd-network text-primary me-2"></i>Functional Endpoints</h5>
+        </div>
+        <div class="card-body p-4">
+            <p class="text-muted small">
+                Every backend endpoint owned by this member. Click <em>Perform Operation</em> to open the
+                corresponding UI page - tables for GET, forms for POST/PUT, download buttons for PDFs.
+            </p>
+
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead class="table-light">
+                    <tr>
+                        <th style="width:12%">Method</th>
+                        <th style="width:28%">Endpoint</th>
+                        <th>Description</th>
+                        <th style="width:20%" class="text-end">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="e : ${member.endpoints}">
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${e.method == 'GET' or e.method == 'GET ALL'} ? 'bg-success' :
+                                                 (${e.method == 'POST'} ? 'bg-primary' :
+                                                 (${e.method == 'PUT' or e.method == 'PATCH'} ? 'bg-warning text-dark' :
+                                                 (${e.method == 'SEARCH'} ? 'bg-info text-dark' :
+                                                 (${e.method == 'DOWNLOAD'} ? 'bg-dark' : 'bg-secondary'))))"
+                                  th:text="${e.method}">GET</span>
+                        </td>
+                        <td><code th:text="${e.apiPath}">/api/...</code></td>
+                        <td class="small" th:text="${e.description}">Description</td>
+                        <td class="text-end">
+                            <a th:href="@{${e.uiUrl}}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-play-circle me-1"></i>
+                                <span th:text="${e.actionLabel}">Perform Operation</span>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<style>
+    .team-avatar {
+        width: 80px; height: 80px; border-radius: 50%;
+        object-fit: cover;
+        box-shadow: 0 4px 14px rgba(0,0,0,.18);
+    }
+    .screen-link { transition: background-color .15s ease; }
+    .screen-link:hover { background-color: #eff6ff; }
+</style>
+
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}"><title>BusBooking</title></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+
+            <!-- Success Header -->
+            <div class="text-center mb-4">
+                <div class="success-icon">
+                    <i class="bi bi-check-lg"></i>
+                </div>
+                <h2 class="fw-bold text-success mb-1">Booking Confirmed!</h2>
+                <p class="text-muted" th:text="${booking.message}"></p>
+            </div>
+
+            <!-- Booking Summary Card -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-ticket-perforated me-2"></i>Booking Summary</h5>
+                        <span class="badge bg-white text-primary" th:text="${#lists.size(booking.bookingIds)} + ' Seat(s)'"></span>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+
+                    <!-- Customer Info -->
+                    <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
+                        <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3"
+                             style="width:48px; height:48px; font-weight:700; font-size:1.1rem;"
+                             th:if="${customerName != null}"
+                             th:text="${#strings.toUpperCase(#strings.substring(customerName, 0, 2))}">
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-5" th:if="${customerName != null}" th:text="${customerName}"></div>
+                            <small class="text-muted">Customer ID: <span th:text="${booking.customerId}"></span></small>
+                        </div>
+                    </div>
+
+                    <!-- Route Info -->
+                    <div th:if="${fromCity != null and toCity != null}" class="text-center py-3 mb-3 rounded-3 bg-light">
+                        <div class="d-flex align-items-center justify-content-center gap-3">
+                            <div>
+                                <small class="text-muted d-block">From</small>
+                                <span class="fw-bold fs-5" th:text="${fromCity}"></span>
+                            </div>
+                            <i class="bi bi-arrow-right-circle-fill text-primary fs-4"></i>
+                            <div>
+                                <small class="text-muted d-block">To</small>
+                                <span class="fw-bold fs-5" th:text="${toCity}"></span>
+                            </div>
+                        </div>
+                        <small th:if="${tripDate != null}" class="text-muted mt-1 d-block">
+                            <i class="bi bi-calendar3 me-1"></i><span th:text="${tripDate}"></span>
+                        </small>
+                    </div>
+
+                    <!-- Details Grid -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
+                            <div class="p-3 rounded-3 bg-light h-100">
+                                <small class="text-muted d-block mb-1"><i class="bi bi-hash me-1"></i>Booking ID(s)</small>
+                                <span class="fw-bold" th:text="${#strings.listJoin(booking.bookingIds, ', ')}"></span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 rounded-3 bg-light h-100">
+                                <small class="text-muted d-block mb-1"><i class="bi bi-grid-3x3 me-1"></i>Seat(s)</small>
+                                <span class="fw-bold" th:text="${#strings.listJoin(seatNumbers, ', ')}"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Total Fare -->
+                    <div class="text-center py-3 rounded-3" style="background: linear-gradient(135deg, #e3f2fd, #e8f5e9);">
+                        <small class="text-muted d-block">Total Fare</small>
+                        <span class="fw-bold text-success" style="font-size:2rem;"
+                              th:text="'&#8377; ' + ${booking.totalFare}"></span>
+                        <small th:if="${#lists.size(booking.bookingIds) > 1}" class="text-muted d-block mt-1">
+                            Payment pending for <span th:text="${#lists.size(booking.bookingIds)}"></span> seats
+                        </small>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="text-center mt-4 d-flex flex-wrap gap-3 justify-content-center">
+                <a th:if="${booking.bookingIds != null and !booking.bookingIds.isEmpty()}"
+                   th:href="@{/view/payments/pay-all(bookingIds=${#strings.listJoin(booking.bookingIds, ',')},customerId=${booking.customerId})}"
+                   class="btn btn-success btn-lg px-4">
+                    <i class="bi bi-credit-card me-2"></i>Proceed to Payment
+                </a>
+                <a th:href="@{/view/bookings}" class="btn btn-outline-secondary btn-lg px-4">
+                    <i class="bi bi-arrow-left me-1"></i>Back to Trips
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

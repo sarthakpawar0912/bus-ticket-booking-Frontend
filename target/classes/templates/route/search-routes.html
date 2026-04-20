@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}"><title>BusBooking</title></head>
+<body class="bg-light">
+<nav th:replace="~{fragments/header :: navbar}"></nav>
+
+<main class="container py-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h2 class="fw-bold mb-0"><i class="bi bi-search me-2 text-primary"></i>Search Routes</h2>
+        <a th:href="@{/view/routes}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>All Routes
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
+            <form th:action="@{/view/routes/search}" method="get" class="row g-3">
+                <div class="col-md-5">
+                    <label for="searchroutes_from" class="form-label fw-semibold">From City</label>
+                    <input type="text" name="from" id="searchroutes_from" class="form-control" required
+                           th:value="${from}" placeholder="Mumbai" aria-label="from"/>
+                </div>
+                <div class="col-md-5">
+                    <label for="searchroutes_to" class="form-label fw-semibold">To City</label>
+                    <input type="text" name="to" id="searchroutes_to" class="form-control" required
+                           th:value="${to}" placeholder="Pune" aria-label="to"/>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search me-1"></i>Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div th:if="${results != null}" class="card shadow-sm border-0">
+        <div class="card-header bg-white">
+            <span class="fw-semibold">Results for </span>
+            <code th:text="${from}">X</code><span> to </span><code th:text="${to}">Y</code>
+            <span class="badge bg-secondary ms-2" th:text="${#lists.size(results)} + ' matches'">0</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Route ID</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Break Points</th>
+                        <th>Duration (min)</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="r : ${results}">
+                        <td th:text="${r.routeId}">1</td>
+                        <td th:text="${r.fromCity}">Mumbai</td>
+                        <td th:text="${r.toCity}">Pune</td>
+                        <td th:text="${r.breakPoints}">1</td>
+                        <td th:text="${r.duration}">180</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(results)}">
+                        <td colspan="5" class="text-center text-muted py-4">No routes found.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

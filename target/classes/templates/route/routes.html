@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}"><title>BusBooking</title></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<div class="page-title-bar">
+    <div class="container d-flex justify-content-between align-items-center">
+        <h2><i class="bi bi-signpost-split me-2"></i>Route Management</h2>
+        <a th:href="@{/view/routes/add}" class="btn btn-light">
+            <i class="bi bi-plus-circle me-1"></i>Add Route
+        </a>
+    </div>
+</div>
+
+<div class="container">
+    <div th:if="${message}" class="alert alert-success flash-message" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i><span th:text="${message}"></span>
+    </div>
+    <div th:if="${error}" class="alert alert-danger flash-message" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i><span th:text="${error}"></span>
+    </div>
+
+    <div class="table-container">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>From City</th>
+                        <th>To City</th>
+                        <th>Break Points</th>
+                        <th>Duration (hrs)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="r : ${routes}">
+                        <td th:text="${r.routeId}"></td>
+                        <td th:text="${r.fromCity}"></td>
+                        <td th:text="${r.toCity}"></td>
+                        <td th:text="${r.breakPoints}"></td>
+                        <td th:text="${r.duration}"></td>
+                        <td>
+                            <a th:href="@{/view/routes/edit/{id}(id=${r.routeId})}" class="btn btn-sm btn-outline-primary btn-action me-1">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(routes)}">
+                        <td colspan="6" class="text-center text-muted py-4">No routes found.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

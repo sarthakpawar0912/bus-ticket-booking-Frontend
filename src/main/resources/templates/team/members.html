@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}"><title>BusBooking</title></head>
+<body class="bg-light">
+
+<nav th:replace="~{fragments/header :: navbar}"></nav>
+
+<main class="container py-5">
+
+    <div class="text-center mb-5">
+        <span class="badge bg-primary-subtle text-primary fs-6 px-3 py-2 mb-3">
+            <i class="bi bi-people-fill me-1"></i>Our Team
+        </span>
+        <h1 class="fw-bold mb-2">Meet the Team Behind BusBooking</h1>
+        <p class="text-muted mb-0">
+            Click a member's profile to see every backend endpoint they own, plus direct links to the UI pages.
+        </p>
+    </div>
+
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+        <i class="bi bi-exclamation-triangle me-2"></i><span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-4" th:each="m : ${members}">
+            <div class="card h-100 shadow-sm border-0 team-card">
+                <div class="card-body p-4 text-center">
+                    <img class="team-avatar mx-auto mb-3 d-block"
+                         th:src="${m.photo}" th:alt="${m.name}"
+                         th:style="'border: 3px solid ' + ${m.color}"/>
+                    <h5 class="fw-bold mb-1" th:text="${m.name}">Name</h5>
+                    <p class="text-muted small mb-3" th:text="${m.role}">Role</p>
+                    <div class="d-flex flex-wrap gap-2 justify-content-center mb-3">
+                        <span th:each="moduleName : ${m.modules}"
+                              class="badge bg-light text-dark border"
+                              th:text="${moduleName}">Module</span>
+                    </div>
+                    <a th:href="@{/team/{slug}(slug=${m.slug})}"
+                       class="btn btn-primary w-100">
+                        <i class="bi bi-person-vcard me-1"></i>View Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<style>
+    .team-card { transition: transform .15s ease, box-shadow .15s ease; }
+    .team-card:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(0,0,0,.12) !important; }
+    .team-avatar {
+        width: 88px; height: 88px; border-radius: 50%;
+        object-fit: cover;
+        box-shadow: 0 4px 14px rgba(0,0,0,.18);
+    }
+</style>
+
+</body>
+</html>

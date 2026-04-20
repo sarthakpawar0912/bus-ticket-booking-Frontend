@@ -1,0 +1,11 @@
+com\busfrontend\client\CustomerApiClientTest.class
+com\busfrontend\controller\HomePageControllerTest.class
+com\busfrontend\controller\BookingViewControllerTest.class
+com\busfrontend\client\PaymentApiClientTest.class
+com\busfrontend\controller\ReviewViewControllerTest.class
+com\busfrontend\controller\TripViewControllerTest.class
+com\busfrontend\client\AbstractApiClientErrorTranslationTest.class
+com\busfrontend\client\TripApiClientTest.class
+com\busfrontend\controller\PaymentViewControllerTest.class
+com\busfrontend\client\BookingApiClientTest.class
+com\busfrontend\client\ReviewApiClientTest.class

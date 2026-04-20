@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}"><title>BusBooking</title></head>
+<body class="bg-light">
+
+<nav th:replace="~{fragments/header :: navbar}"></nav>
+
+<main class="container py-5">
+
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <div>
+            <h1 class="fw-bold mb-1"><i class="bi bi-people-fill text-primary me-2"></i>Team Members</h1>
+            <p class="text-muted mb-0">
+                Click any member to explore the services they own and try the APIs they expose.
+            </p>
+        </div>
+        <span class="badge bg-primary-subtle text-primary fs-6 px-3 py-2">
+            <i class="bi bi-hdd-network me-1"></i>Internal Service Explorer
+        </span>
+    </div>
+
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+        <i class="bi bi-exclamation-triangle me-2"></i><span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-4" th:each="m : ${members}">
+            <a th:href="@{/members/{id}(id=${m.id})}"
+               class="text-decoration-none text-reset">
+                <div class="card h-100 shadow-sm border-0 member-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <img class="member-avatar me-3"
+                                 th:src="${m.image}" th:alt="${m.name}"
+                                 th:style="'border: 3px solid ' + ${m.color}"/>
+                            <div>
+                                <h5 class="mb-0 fw-bold" th:text="${m.name}">Member</h5>
+                                <small class="text-muted" th:text="${m.role}">Role</small>
+                            </div>
+                        </div>
+                        <p class="text-muted small mb-3">
+                            <i class="bi bi-box-seam me-1"></i>
+                            <span th:text="${m.summary}">Services</span>
+                        </p>
+                        <div class="d-flex flex-wrap gap-2">
+              <span th:each="s : ${m.services}"
+                    class="badge bg-light text-dark border"
+                    th:text="${s.name}">Service</span>
+                        </div>
+                        <div class="mt-3 text-primary small fw-semibold">
+                            Open service explorer <i class="bi bi-arrow-right"></i>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+<style>
+    .member-card { transition: transform .15s ease, box-shadow .15s ease; }
+    .member-card:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(0,0,0,.12) !important; }
+    .member-avatar {
+        width: 56px; height: 56px; border-radius: 50%;
+        object-fit: cover;
+        box-shadow: 0 4px 12px rgba(0,0,0,.15);
+    }
+</style>
+
+</body>
+</html>

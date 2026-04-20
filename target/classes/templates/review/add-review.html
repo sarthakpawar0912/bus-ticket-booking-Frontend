@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}"><title>BusBooking</title></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<div class="container my-4">
+    <div class="form-container">
+        <h2><i class="bi bi-star-fill me-2 text-warning"></i>Add Review</h2>
+
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <span th:text="${error}">Error</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="alert alert-info small" role="alert">
+            <i class="bi bi-info-circle me-1"></i>
+            You can only review a trip you have a confirmed paid booking for.
+        </div>
+
+        <form th:action="@{/view/reviews/save}" method="post" th:object="${review}">
+            <div class="mb-3">
+                <label for="customerId" class="form-label">Customer</label>
+                <select class="form-select" id="customerId" th:field="*{customerId}" required>
+                    <option value="">-- Select Customer --</option>
+                    <option th:each="c : ${customers}"
+                            th:value="${c.id}"
+                            th:text="${c.name + ' (' + c.email + ')'}"></option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="tripId" class="form-label">Trip</label>
+                <select class="form-select" id="tripId" th:field="*{tripId}" required>
+                    <option value="">-- Select Trip --</option>
+                    <option th:each="t : ${trips}"
+                            th:value="${t.tripId}"
+                            th:text="${t.fromCity + ' -> ' + t.toCity + ' (' + t.departureTime + ')'}"></option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="rating" class="form-label">Rating</label>
+                <select class="form-select" id="rating" th:field="*{rating}" required>
+                    <option value="">-- Select Rating --</option>
+                    <option value="1">1 - Poor</option>
+                    <option value="2">2 - Fair</option>
+                    <option value="3">3 - Good</option>
+                    <option value="4">4 - Very Good</option>
+                    <option value="5">5 - Excellent</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="comment" class="form-label">Comment</label>
+                <textarea class="form-control" id="comment" th:field="*{comment}" rows="4" placeholder="Share your experience..."></textarea>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle me-1"></i>Submit Review
+                </button>
+                <a th:href="@{/view/reviews}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

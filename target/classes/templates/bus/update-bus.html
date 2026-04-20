@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}"><title>BusBooking</title></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<div class="container my-4">
+    <div class="form-container">
+        <h2><i class="bi bi-pencil-square me-2 text-primary"></i>Update Bus</h2>
+        <form th:action="@{/view/buses/update/{id}(id=${bus.busId})}" method="post">
+            <div class="mb-3">
+                <label for="registrationNumber" class="form-label">Registration Number</label>
+                <input type="text" class="form-control" id="registrationNumber" name="registrationNumber" th:value="${bus.registrationNumber}" required>
+            </div>
+            <div class="mb-3">
+                <label for="capacity" class="form-label">Capacity</label>
+                <input type="number" class="form-control" id="capacity" name="capacity" th:value="${bus.capacity}" min="1" required>
+            </div>
+            <div class="mb-3">
+                <label for="type" class="form-label">Bus Type</label>
+                <select class="form-select" id="type" name="type" required>
+                    <option value="">-- Select Type --</option>
+                    <option value="AC" th:selected="${bus.type == 'AC'}">AC</option>
+                    <option value="NON_AC" th:selected="${bus.type == 'NON_AC'}">Non-AC</option>
+                    <option value="SLEEPER" th:selected="${bus.type == 'SLEEPER'}">Sleeper</option>
+                    <option value="SEMI_SLEEPER" th:selected="${bus.type == 'SEMI_SLEEPER'}">Semi-Sleeper</option>
+                    <option value="VOLVO" th:selected="${bus.type == 'VOLVO'}">Volvo</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="officeId" class="form-label">Office</label>
+                <select class="form-select" id="officeId" name="officeId" required>
+                    <option value="">-- Select Office --</option>
+                    <option th:each="office : ${offices}"
+                            th:value="${office.officeId}"
+                            th:selected="${office.officeId == bus.officeId}"
+                            th:text="${office.officeId + ' - ' + (office.officeCity != null ? office.officeCity : 'Office')}"></option>
+                </select>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle me-1"></i>Update Bus
+                </button>
+                <a th:href="@{/view/buses}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
