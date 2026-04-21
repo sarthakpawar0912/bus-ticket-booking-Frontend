@@ -47,7 +47,9 @@ public class MemberRegistry {
     private static final String F_CUSTOMER_ID_LABEL = "Customer ID";
     private static final String CITY_MUMBAI = "Mumbai";
     private static final String OP_GET_ALL = "Get All";
+    private static final String OP_GET_BY_ID = "Get By ID";
     private static final String OP_CREATE = "Create";
+    private static final String OP_UPDATE = "Update";
 
     // ---------- Field builders ----------
 
@@ -150,8 +152,9 @@ public class MemberRegistry {
     private static List<Operation> crudOps(String base, List<FieldDef> fields) {
         return List.of(
                 op(OP_GET_ALL, "GET", base, "NONE", "Fetch all records", List.of()),
+                op(OP_GET_BY_ID, "GET", base + "/{id}", "ID", "Fetch a single record by ID", List.of()),
                 op(OP_CREATE, "POST", base, "BODY", "Create a new record", fields),
-                op("Update", "PUT", base + "/{id}", "ID_AND_BODY", "Update an existing record", fields)
+                op(OP_UPDATE, "PUT", base + "/{id}", "ID_AND_BODY", "Update an existing record", fields)
         );
     }
 
@@ -216,6 +219,7 @@ public class MemberRegistry {
     private static ServiceInfo paymentService() {
         List<Operation> ops = List.of(
                 op(OP_GET_ALL, "GET", "/api/payments", "NONE", "Fetch all payments", List.of()),
+                op(OP_GET_BY_ID, "GET", "/api/payments/{id}", "ID", "Fetch a single payment by ID", List.of()),
                 op(OP_CREATE, "POST", "/api/payments", "BODY", "Process a new payment", PAYMENT_FIELDS)
         );
         return ServiceInfo.builder().key("payments").name("Payments").icon("bi-credit-card")
@@ -238,6 +242,8 @@ public class MemberRegistry {
 
     private static ServiceInfo bookingService() {
         List<Operation> ops = List.of(
+                op(OP_GET_BY_ID, "GET", "/api/bookings/{id}", "ID",
+                        "Fetch a single booking by ID", List.of()),
                 op("Get By Trip", "GET", "/api/bookings/trip/{id}", "ID",
                         "List seats/bookings for a trip", List.of()),
                 op(OP_CREATE, "POST", "/api/bookings", "BODY", "Book one or more seats", BOOKING_FIELDS)
@@ -262,6 +268,7 @@ public class MemberRegistry {
     private static ServiceInfo reviewService() {
         List<Operation> ops = List.of(
                 op(OP_GET_ALL, "GET", "/api/reviews", "NONE", "Fetch all reviews", List.of()),
+                op(OP_GET_BY_ID, "GET", "/api/reviews/{id}", "ID", "Fetch a single review by ID", List.of()),
                 op(OP_CREATE, "POST", "/api/reviews", "BODY", "Post a new review", REVIEW_FIELDS)
         );
         return ServiceInfo.builder().key("reviews").name("Reviews").icon("bi-star-fill")

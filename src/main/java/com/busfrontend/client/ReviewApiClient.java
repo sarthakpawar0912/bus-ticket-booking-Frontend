@@ -20,6 +20,11 @@ public class ReviewApiClient extends AbstractApiClient {
         return getList("/api/reviews", new ParameterizedTypeReference<List<Map<String, Object>>>() {});
     }
 
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> getById(Integer id) {
+        return get("/api/reviews/" + id, Map.class);
+    }
+
     public List<Map<String, Object>> getByTrip(Integer tripId) {
         return getList("/api/reviews/trip/" + tripId, new ParameterizedTypeReference<List<Map<String, Object>>>() {});
     }

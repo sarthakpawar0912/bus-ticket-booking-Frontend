@@ -80,17 +80,64 @@ public class OperationExecutor {
 
         try {
             ResponseEntity<String> response = restTemplate.exchange(url, httpMethod, entity, String.class);
-            String pretty = prettify(response.getBody());
-            return ExecutionResult.success(url, httpMethod.name(), requestBodyPretty,
-                    pretty, response.getStatusCode().value());
+            int status = response.getStatusCode().value();
+            MediaType contentType = response.getHeaders().getContentType();
+            String body = response.getBody();
+
+            // Defensive: if the backend redirected (e.g. missing/invalid auth → /login),
+            // treat it as an auth failure instead of returning HTML as "success".
+            if (status >= 300 && status < 400) {
+                String loc = response.getHeaders().getFirst("Location");
+                return ExecutionResult.failure(
+                        "Backend responded with " + status + " redirect — likely an auth failure. "
+                                + "Check that BACKEND_USER and BACKEND_PASSWORD match the backend's "
+                                + "APP_ADMIN_USER and APP_ADMIN_PASSWORD.",
+                        url, "Redirect → " + loc, status);
+            }
+
+            // Defensive: if the body is HTML (not JSON), the request was not actually
+            // answered by the REST layer — almost always an auth/routing failure.
+            if (looksLikeHtml(body, contentType)) {
+                return ExecutionResult.failure(
+                        "Backend returned an HTML page instead of JSON. "
+                                + "This usually means the RestTemplate is not authenticating correctly. "
+                                + "Verify BACKEND_PASSWORD matches the backend's APP_ADMIN_PASSWORD.",
+                        url, "(HTML response suppressed — " + (body == null ? 0 : body.length()) + " chars)", status);
+            }
+
+            String pretty = prettify(body);
+            return ExecutionResult.success(url, httpMethod.name(), requestBodyPretty, pretty, status);
         } catch (HttpStatusCodeException ex) {
-            String pretty = prettify(ex.getResponseBodyAsString());
+            int status = ex.getStatusCode().value();
+            String body = ex.getResponseBodyAsString();
+            if (status == 401 || status == 403) {
+                return ExecutionResult.failure(
+                        "Authentication failed (" + status + "). "
+                                + "Verify BACKEND_USER / BACKEND_PASSWORD match the backend credentials.",
+                        url, prettify(body), status);
+            }
+            if (looksLikeHtml(body, null)) {
+                return ExecutionResult.failure(
+                        "Backend returned HTML for status " + status + ". Likely an auth/routing issue.",
+                        url, "(HTML response suppressed)", status);
+            }
             return ExecutionResult.failure(
-                    "Backend returned " + ex.getStatusCode().value(),
-                    url, pretty, ex.getStatusCode().value());
+                    "Backend returned " + status,
+                    url, prettify(body), status);
         } catch (Exception ex) {
             return ExecutionResult.failure("Request failed: " + ex.getMessage(), url, null, 0);
         }
+    }
+
+    private boolean looksLikeHtml(String body, MediaType contentType) {
+        if (contentType != null && MediaType.TEXT_HTML.isCompatibleWith(contentType)) {
+            return true;
+        }
+        if (body == null) return false;
+        String trimmed = body.trim();
+        if (trimmed.isEmpty()) return false;
+        String lower = trimmed.substring(0, Math.min(200, trimmed.length())).toLowerCase();
+        return lower.startsWith("<!doctype html") || lower.startsWith("<html") || lower.contains("<form action=\"/login\"");
     }
 
     private boolean needsBody(String kind) {
