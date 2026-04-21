@@ -142,6 +142,9 @@ public class MemberRegistry {
     private static final List<FieldDef> GROUP_TICKET_FIELDS = List.of(
             f("bookingIds", "Booking IDs (comma-separated)", "text", "1,2,3", true, T_STRING));
 
+    private static final List<FieldDef> GROUP_PAYMENT_TICKET_FIELDS = List.of(
+            f("paymentIds", "Payment IDs (comma-separated)", "text", "1,2,3", true, T_STRING));
+
     private static final List<FieldDef> PAGE_FIELDS = List.of(
             f("page", "Page Number (0-based)", T_NUMBER, "0", false, T_INTEGER),
             f("size", "Page Size", T_NUMBER, "10", false, T_INTEGER));
@@ -263,10 +266,13 @@ public class MemberRegistry {
         List<Operation> ops = List.of(
                 op("Download Payment Ticket", "GET", "/api/payments/{id}/ticket", "PDF_DOWNLOAD",
                         "Download a payment ticket PDF (auto-generates group ticket when the payment is part of a multi-seat transaction)",
-                        List.of())
+                        List.of()),
+                op("Download Group Ticket", "GET", "/api/payments/group-ticket", "PDF_DOWNLOAD_QUERY",
+                        "Download a consolidated group-payment ticket PDF for multiple payment IDs",
+                        GROUP_PAYMENT_TICKET_FIELDS)
         );
         return ServiceInfo.builder().key("pdf-payment").name("Ticket Download").icon("bi-file-earmark-pdf-fill")
-                .description("Download payment ticket PDFs")
+                .description("Download payment ticket PDFs (single + group)")
                 .operations(ops).build();
     }
 
