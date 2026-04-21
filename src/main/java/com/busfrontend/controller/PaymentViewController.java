@@ -61,8 +61,14 @@ public class PaymentViewController {
         List<Integer> ids = new ArrayList<>();
         for (String s : paymentIdsCsv.split(",")) {
             s = s.trim();
-            if (!s.isEmpty()) ids.add(Integer.parseInt(s));
+            if (s.isEmpty()) continue;
+            try {
+                ids.add(Integer.parseInt(s));
+            } catch (NumberFormatException ex) {
+                return ResponseEntity.badRequest().build();
+            }
         }
+        if (ids.isEmpty()) return ResponseEntity.badRequest().build();
         byte[] pdf = paymentApiClient.downloadGroupTicket(ids);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
@@ -185,6 +191,9 @@ public class PaymentViewController {
             List<Integer> paymentIds = responses.stream()
                     .map(PaymentResponseDTO::getPaymentId)
                     .toList();
+            if (paymentIds.isEmpty()) {
+                throw new IllegalStateException("No payments were processed");
+            }
             Integer firstPaymentId = paymentIds.get(0);
 
             ra.addFlashAttribute(ATTR_ALL_PAYMENT_IDS, paymentIds);

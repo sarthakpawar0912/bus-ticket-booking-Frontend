@@ -28,14 +28,15 @@ public class MemberController {
 
     private final MemberRegistry registry;
     private final OperationExecutor executor;
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
 
     @Value("${backend.base-url:http://localhost:8080}")
     private String backendBaseUrl;
 
-    public MemberController(MemberRegistry registry, OperationExecutor executor) {
+    public MemberController(MemberRegistry registry, OperationExecutor executor, RestTemplate restTemplate) {
         this.registry = registry;
         this.executor = executor;
+        this.restTemplate = restTemplate;
     }
 
     // ---------- Listing ----------

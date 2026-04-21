@@ -43,7 +43,8 @@ public abstract class AbstractApiClient {
         try {
             ResponseEntity<List<T>> resp = restTemplate.exchange(
                     url(path), HttpMethod.GET, null, ref);
-            return resp.getBody();
+            List<T> body = resp.getBody();
+            return body != null ? body : List.of();
         } catch (HttpClientErrorException | HttpServerErrorException ex) {
             throw translate(ex);
         }
@@ -85,7 +86,8 @@ public abstract class AbstractApiClient {
             h.setAccept(List.of(MediaType.APPLICATION_PDF, MediaType.APPLICATION_OCTET_STREAM));
             ResponseEntity<byte[]> resp = restTemplate.exchange(
                     url(path), HttpMethod.GET, new HttpEntity<>(h), byte[].class);
-            return resp.getBody();
+            byte[] body = resp.getBody();
+            return body != null ? body : new byte[0];
         } catch (HttpClientErrorException | HttpServerErrorException ex) {
             throw translate(ex);
         }

@@ -20,12 +20,16 @@ import java.util.*;
 @Component
 public class OperationExecutor {
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper()
             .enable(SerializationFeature.INDENT_OUTPUT);
 
     @Value("${backend.base-url:http://localhost:8080}")
     private String backendBaseUrl;
+
+    public OperationExecutor(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     private String baseUrl() {
         return backendBaseUrl;

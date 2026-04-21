@@ -113,6 +113,10 @@ public class BookingViewController {
                     ra.addFlashAttribute("tripDate", trip.getTripDate().toLocalDate().toString());
                 }
             }
+            if (response.getBookingIds() == null || response.getBookingIds().isEmpty()) {
+                ra.addFlashAttribute(ATTR_ERROR, "Booking created but no booking ID returned");
+                return "redirect:/view/bookings/trip/" + tripId;
+            }
             return "redirect:/view/bookings/confirmation/" + response.getBookingIds().get(0);
         } catch (BackendException ex) {
             ra.addFlashAttribute(ATTR_ERROR, ex.getMessage());
@@ -150,8 +154,14 @@ public class BookingViewController {
         List<Integer> ids = new ArrayList<>();
         for (String s : bookingIdsCsv.split(",")) {
             s = s.trim();
-            if (!s.isEmpty()) ids.add(Integer.parseInt(s));
+            if (s.isEmpty()) continue;
+            try {
+                ids.add(Integer.parseInt(s));
+            } catch (NumberFormatException ex) {
+                return ResponseEntity.badRequest().build();
+            }
         }
+        if (ids.isEmpty()) return ResponseEntity.badRequest().build();
         byte[] pdf = bookingApiClient.downloadGroupTicket(ids);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
