@@ -142,6 +142,10 @@ public class MemberRegistry {
     private static final List<FieldDef> GROUP_TICKET_FIELDS = List.of(
             f("bookingIds", "Booking IDs (comma-separated)", "text", "1,2,3", true, T_STRING));
 
+    private static final List<FieldDef> PAGE_FIELDS = List.of(
+            f("page", "Page Number (0-based)", T_NUMBER, "0", false, T_INTEGER),
+            f("size", "Page Size", T_NUMBER, "10", false, T_INTEGER));
+
     // ---------- CRUD builders (matches team page: Get All, Create, Update) ----------
 
     private static Operation op(String name, String method, String endpoint, String inputKind, String desc, List<FieldDef> fields) {
@@ -161,9 +165,12 @@ public class MemberRegistry {
     // ---------- Service builders ----------
 
     private static ServiceInfo customerService() {
+        List<Operation> ops = new ArrayList<>(crudOps("/api/customers", CUSTOMER_FIELDS));
+        ops.add(op("Patch", "PATCH", "/api/customers/{id}", "ID_AND_BODY",
+                "Partially update a customer (only non-null fields)", CUSTOMER_FIELDS));
         return ServiceInfo.builder().key("customers").name("Customers").icon("bi-people-fill")
                 .description("Manage customer profiles and contact details")
-                .operations(crudOps("/api/customers", CUSTOMER_FIELDS)).build();
+                .operations(ops).build();
     }
 
     private static ServiceInfo addressService() {
@@ -173,27 +180,46 @@ public class MemberRegistry {
     }
 
     private static ServiceInfo agencyService() {
+        List<Operation> ops = new ArrayList<>(crudOps("/api/agencies", AGENCY_FIELDS));
+        // Nested office endpoints under /api/agencies/offices
+        ops.add(op("Get All Offices (Nested)", "GET", "/api/agencies/offices", "NONE",
+                "Alias: list every office across all agencies", List.of()));
+        ops.add(op("Get Office By ID (Nested)", "GET", "/api/agencies/offices/{id}", "ID",
+                "Alias: fetch a single office by ID via agencies path", List.of()));
+        ops.add(op("Create Office (Nested)", "POST", "/api/agencies/offices", "BODY",
+                "Alias: create an office via agencies path", OFFICE_FIELDS));
+        ops.add(op("Update Office (Nested)", "PUT", "/api/agencies/offices/{id}", "ID_AND_BODY",
+                "Alias: update an office via agencies path", OFFICE_FIELDS));
         return ServiceInfo.builder().key("agencies").name("Agencies").icon("bi-building")
                 .description("Manage bus agencies and their offices")
-                .operations(crudOps("/api/agencies", AGENCY_FIELDS)).build();
+                .operations(ops).build();
     }
 
     private static ServiceInfo officeService() {
+        List<Operation> ops = new ArrayList<>(crudOps("/api/offices", OFFICE_FIELDS));
+        ops.add(op("Get By Agency", "GET", "/api/offices/agency/{id}", "ID",
+                "List offices belonging to a specific agency", List.of()));
         return ServiceInfo.builder().key("offices").name("Agency Offices").icon("bi-shop")
                 .description("Manage office branches linked to agencies")
-                .operations(crudOps("/api/offices", OFFICE_FIELDS)).build();
+                .operations(ops).build();
     }
 
     private static ServiceInfo busService() {
+        List<Operation> ops = new ArrayList<>(crudOps("/api/buses", BUS_FIELDS));
+        ops.add(op("Get By Office", "GET", "/api/buses/office/{id}", "ID",
+                "List buses assigned to a specific office", List.of()));
         return ServiceInfo.builder().key("buses").name("Buses").icon("bi-bus-front-fill")
                 .description("Manage physical buses with capacity and registration")
-                .operations(crudOps("/api/buses", BUS_FIELDS)).build();
+                .operations(ops).build();
     }
 
     private static ServiceInfo driverService() {
+        List<Operation> ops = new ArrayList<>(crudOps("/api/drivers", DRIVER_FIELDS));
+        ops.add(op("Get By Office", "GET", "/api/drivers/office/{id}", "ID",
+                "List drivers assigned to a specific office", List.of()));
         return ServiceInfo.builder().key("drivers").name("Drivers").icon("bi-person-badge")
                 .description("Manage licensed drivers")
-                .operations(crudOps("/api/drivers", DRIVER_FIELDS)).build();
+                .operations(ops).build();
     }
 
     private static ServiceInfo routeService() {
@@ -209,6 +235,8 @@ public class MemberRegistry {
         List<Operation> ops = new ArrayList<>(crudOps("/api/trips", TRIP_FIELDS));
         ops.add(op("Search", "GET", "/api/trips/search", "QUERY",
                 "Search trips by from/to city", TRIP_SEARCH_FIELDS));
+        ops.add(op("Get Paginated", "GET", "/api/trips/page", "QUERY",
+                "Fetch trips paginated (page, size)", PAGE_FIELDS));
         return ServiceInfo.builder().key("trips").name("Trips").icon("bi-calendar-event")
                 .description("Manage scheduled trips with buses, drivers, fare")
                 .operations(ops).build();
@@ -220,6 +248,10 @@ public class MemberRegistry {
         List<Operation> ops = List.of(
                 op(OP_GET_ALL, "GET", "/api/payments", "NONE", "Fetch all payments", List.of()),
                 op(OP_GET_BY_ID, "GET", "/api/payments/{id}", "ID", "Fetch a single payment by ID", List.of()),
+                op("Get By Booking", "GET", "/api/payments/booking/{id}", "ID",
+                        "Fetch the payment tied to a specific booking", List.of()),
+                op("Get By Customer", "GET", "/api/payments/customer/{id}", "ID",
+                        "List all payments made by a specific customer", List.of()),
                 op(OP_CREATE, "POST", "/api/payments", "BODY", "Process a new payment", PAYMENT_FIELDS)
         );
         return ServiceInfo.builder().key("payments").name("Payments").icon("bi-credit-card")
@@ -269,6 +301,10 @@ public class MemberRegistry {
         List<Operation> ops = List.of(
                 op(OP_GET_ALL, "GET", "/api/reviews", "NONE", "Fetch all reviews", List.of()),
                 op(OP_GET_BY_ID, "GET", "/api/reviews/{id}", "ID", "Fetch a single review by ID", List.of()),
+                op("Get By Trip", "GET", "/api/reviews/trip/{id}", "ID",
+                        "List reviews for a specific trip", List.of()),
+                op("Get By Customer", "GET", "/api/reviews/customer/{id}", "ID",
+                        "List reviews written by a specific customer", List.of()),
                 op(OP_CREATE, "POST", "/api/reviews", "BODY", "Post a new review", REVIEW_FIELDS)
         );
         return ServiceInfo.builder().key("reviews").name("Reviews").icon("bi-star-fill")
